@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ekagra</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --surface: #1e1e1e;
+      --primary: #00ffcc;
+      --text: #e0e0e0;
+      --text-muted: #888;
+      --border: #333;
+      --danger: #ff4444;
+    }
+    body {
+      width: 320px;
+      margin: 0;
+      padding: 16px;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+    }
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(90deg, #00ffcc, #0088ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 1px;
+    }
+    .analytics {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      background: var(--surface);
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .metric {
+      text-align: center;
+      flex: 1;
+    }
+    .metric:first-child {
+      border-right: 1px solid var(--border);
+    }
+    .metric-value {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--primary);
+    }
+    .metric-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .toggle-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .toggle-label {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    /* Switch CSS */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      transition: .4s;
+      border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: var(--text-muted);
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: rgba(0, 255, 204, 0.2);
+      border-color: var(--primary);
+    }
+    input:checked + .slider:before {
+      background-color: var(--primary);
+      transform: translateX(20px);
+    }
+    .filter-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .filter-header {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0;
+    }
+    .input-group {
+      display: flex;
+      gap: 8px;
+    }
+    input[type="text"] {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus {
+      border-color: var(--primary);
+    }
+    button.add-btn {
+      background: var(--primary);
+      color: var(--bg);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button.add-btn:hover {
+      opacity: 0.9;
+    }
+    .keyword-list {
+      max-height: 120px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .keyword-list::-webkit-scrollbar {
+      width: 4px;
+    }
+    .keyword-list::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+    .keyword-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--surface);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+    }
+    .remove-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      padding: 0;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .remove-btn:hover {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>EKAGRA</h1>
+  </header>
+
+  <div class="analytics">
+    <div class="metric">
+      <div class="metric-value" id="shortsBlocked">0</div>
+      <div class="metric-label">Shorts Blocked</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value" id="itemsFiltered">0</div>
+      <div class="metric-label">Distractions Filtered</div>
+    </div>
+  </div>
+
+  <div class="toggle-section">
+    <div class="toggle-label">Moksha Protocol<br><span style="font-size: 10px; color: var(--text-muted); font-weight: normal;">(Purge all feeds & comments)</span></div>
+    <label class="switch">
+      <input type="checkbox" id="mokshaToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="filter-section">
+    <h3 class="filter-header">Keyword Filter</h3>
+    <div class="input-group">
+      <input type="text" id="keywordInput" placeholder="e.g. drama, gaming...">
+      <button class="add-btn" id="addBtn">Add</button>
+    </div>
+    <div class="keyword-list" id="keywordList">
+      <!-- Keywords will be populated here -->
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
