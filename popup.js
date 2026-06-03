@@ -56,10 +56,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!keywords.map(k => k.toLowerCase()).includes(kw.toLowerCase())) {
         keywords.push(kw);
         chrome.storage.local.set({ bannedKeywords: keywords }, () => {
-          keywordInput.value = '';
+          keywordInput.value = ''; // Clear input on success
           renderKeywords(keywords);
           notifyContentScript(data.isMokshaActive, keywords);
         });
+      } else {
+        // Clear input even if it's a duplicate so the user isn't stuck deleting it manually
+        keywordInput.value = '';
       }
     });
   }
