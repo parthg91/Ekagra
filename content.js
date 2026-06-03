@@ -26,7 +26,7 @@ function cleanYouTube() {
   // Rule A: Ad Annihilation & Shorts UI (Always Active)
   // ----------------------------------------------------
 
-  // 1. Hide Ad Elements (Added search ads support)
+  // 1. Hide Ad Elements
   const adSelectors = [
     'ytd-ad-slot-renderer',
     'ytd-promoted-sparkles-web-renderer',
@@ -59,7 +59,8 @@ function cleanYouTube() {
   const adPlayer = document.querySelector('.ad-showing video');
   if (adPlayer && !isNaN(adPlayer.duration)) {
     if (adPlayer.currentTime < adPlayer.duration - 0.5) {
-      adPlayer.currentTime = adPlayer.duration;
+      // Fast forward to just before the end so YouTube registers the natural completion event
+      adPlayer.currentTime = adPlayer.duration - 0.1;
     }
   }
 
@@ -106,14 +107,12 @@ function cleanYouTube() {
       const cards = document.querySelectorAll('ytd-rich-item-renderer, ytd-compact-video-renderer, ytd-video-renderer, ytd-grid-video-renderer');
       
       cards.forEach(card => {
-        // Scrape multiple possible elements to find title/text
         const titleEl = card.querySelector('#video-title, #video-title-link, yt-formatted-string.ytd-video-renderer, h3');
         const titleText = (titleEl ? titleEl.textContent : card.textContent).toLowerCase();
         
         const shouldHide = bannedKeywords.some(kw => titleText.includes(kw.toLowerCase()));
         
         if (shouldHide) {
-          // Use data attribute lock so we don't infinitely increment counter on every DOM mutation
           if (!card.hasAttribute('data-ekagra-filtered')) {
             card.setAttribute('data-ekagra-filtered', 'true');
             card.style.setProperty('display', 'none', 'important');
@@ -144,9 +143,21 @@ function cleanYouTube() {
   }
 }
 
-// MutationObserver for SPA changes
+// ----------------------------------------------------
+// Performance Optimization: requestAnimationFrame Batching
+// ----------------------------------------------------
+// Instead of running cleanYouTube on every single DOM node insertion,
+// we batch the updates using requestAnimationFrame. This eliminates visual 
+// flickering and drastically reduces CPU usage during infinite scrolling.
+let isCleaning = false;
 const observer = new MutationObserver(() => {
-  cleanYouTube();
+  if (!isCleaning) {
+    isCleaning = true;
+    requestAnimationFrame(() => {
+      cleanYouTube();
+      isCleaning = false;
+    });
+  }
 });
 
 observer.observe(document.body, {
